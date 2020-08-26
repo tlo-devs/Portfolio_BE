@@ -1,3 +1,4 @@
+from abc import ABC
 from random import choices
 from string import ascii_letters, digits
 from typing import ClassVar
@@ -6,14 +7,21 @@ from django.core.files import File
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from google.cloud import exceptions
+from google.cloud.storage import Bucket
 
 from .backend import GCPStorageAdapter
 from .types import GCPBlob
 
 
 @deconstructible
-class GCPStorage(Storage):
+class GCPStorage(Storage, ABC):
     backend: ClassVar[GCPStorageAdapter] = GCPStorageAdapter()
+
+    bucket: ClassVar[Bucket] = None
+    bucket_name: str
+
+    def __init__(self):
+        self.bucket = getattr(self.backend, self.bucket_name)
 
     def get_valid_name(self, name: str) -> str:
         *_, ext = name.split(".")
@@ -21,7 +29,7 @@ class GCPStorage(Storage):
 
     def _open(self, name: str, mode: str = "rb") -> GCPBlob:  # noqa
         file = GCPBlob(
-            self.backend.bucket.get_blob(name.split("/")[-1]),
+            self.bucket.get_blob(name.split("/")[-1]),
             mode=mode
         )
         if not file:
@@ -29,28 +37,26 @@ class GCPStorage(Storage):
         return file
 
     def _save(self, name: str, content: File) -> str:
-        dest_blob = self.backend.bucket.blob(name)
+        dest_blob = self.bucket.blob(name)
         dest_blob.content_type = "image/png"
         dest_blob.upload_from_file(content)
         return dest_blob.public_url
 
     def delete(self, uri: str) -> bool:
-        bucket = self.backend.bucket
         try:
-            bucket.delete_blob(uri)
+            self.bucket.delete_blob(uri)
             return True
         except exceptions.NotFound:
             return False
 
     def exists(self, uri: str) -> bool:
-        bucket = self.backend.bucket
-        return False if bucket.get_blob(uri) is None else True
+        return False if self.bucket.get_blob(uri) is None else True
 
     def url(self, name: str) -> str:
-        return self.backend.bucket.get_blob(name).public_url
+        return self.bucket.get_blob(name).public_url
 
     def size(self, name: str) -> int:
-        return self.backend.bucket.get_blob(name).size
+        return self.bucket.get_blob(name).size
 
     def path(self, *args) -> None:
         """
