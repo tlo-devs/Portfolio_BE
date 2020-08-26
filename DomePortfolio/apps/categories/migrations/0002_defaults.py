@@ -36,6 +36,7 @@ def add_category_defaults(apps, schema_editor):
                  {"name": "Aftermovie", "key": "aftermovie", "parent": first_level.get("video")},
                  {"name": "Kurzfilme", "key": "shortmovie", "parent": first_level.get("video")},
                  {"name": "Musikvideos", "key": "musicvideo", "parent": first_level.get("video")},
+                 {"name": "Dokumentation", "key": "documentation", "parent": first_level.get("video")},
     )
     [CategoryTree.objects.create(**leaf).save() for leaf in leaves]
 
