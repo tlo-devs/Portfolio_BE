@@ -3,6 +3,7 @@
 venv
 *.env
 .run
+DomePortfolio/settings/keys.py
 
 # Exclude compiled files and caches
 __pycache__
@@ -15,6 +16,7 @@ __pycache__
 build
 dist
 *.egg-info
+*.css.map
 
 # Exclude authentication information
 keys
