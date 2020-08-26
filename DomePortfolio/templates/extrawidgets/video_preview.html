@@ -1,0 +1,23 @@
+{% load static %}
+<script type="text/javascript" src="{% static 'extrawidgets/video_preview.js' %}"></script>
+<link rel="stylesheet" href="{% static 'extrawidgets/video_preview.css' %}">
+
+<div x-data="{
+url: {% if widget.value %}'{{ widget.value }}'{% else %}''{% endif %}
+}" id="{{ widget.attrs.id }}">
+    <input type="text" name="{{ widget.name }}"
+           @keydown.enter.prevent="url = youtube_parser($event.target.value)"
+           {% if widget.required %}required{% endif %}
+           {% if widget.is_hidden %}hidden{% endif %}
+           {% if widget.value %}value="embed_url({{ widget.value }})"{% endif %}
+    >
+    <div class="video-container"
+         :style="url ? 'padding-bottom: 56.25%' : 'padding-bottom: 0%'"
+    >
+        <iframe :src="embed_url(url)" frameborder="0"
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen x-show="url">
+        </iframe>
+    </div>
+    <input type="hidden" :value="url" name="{{ widget.name }}-id">
+</div>

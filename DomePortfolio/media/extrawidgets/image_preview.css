@@ -1,0 +1,23 @@
+div[id^=admin-image-preview-widget] {
+  display: flex;
+  flex-direction: column;
+  width: 25%;
+}
+div[id^=admin-image-preview-widget] > button {
+  border-radius: 0.25rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  color: white;
+  background: #4299e1;
+  margin-top: 0.25rem;
+  border-width: 0;
+}
+div[id^=admin-image-preview-widget] > button:hover {
+  background: #1483e2;
+  cursor: pointer;
+}
+div[id^=admin-image-preview-widget] > img {
+  width: 100%;
+}
+
+/*# sourceMappingURL=image_preview.css.map */

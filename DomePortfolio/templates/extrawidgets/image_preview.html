@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'extrawidgets/image_preview.css' %}">
+
+<div x-data="{
+url: {% if widget.value %}'{{ widget.value.file.blob.public_url }}'{% else %}''{% endif %},
+data: ''}" id="{{ widget.attrs.id }}">
+    <input type="file" name="{{ widget.name }}"
+           accept="image/*" x-model="data"
+           @change="url = URL.createObjectURL($event.target.files[0])"
+           {% if widget.required %}required{% endif %}
+           {% if widget.is_hidden %}hidden{% endif %}
+    >
+    <img :src="url" alt="{{ widget.value.name|default:'' }}"
+         x-show="url" onload="window.URL.revokeObjectURL(src)"
+    >
+    <button x-show="url" @click.prevent="url = ''; data = ''"
+    >{% trans "Remove Image" %}</button>
+</div>
