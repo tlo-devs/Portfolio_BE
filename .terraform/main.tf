@@ -1,6 +1,6 @@
 provider "google" {
   credentials = file("../keys/CLOUD_STORAGE_OPERATOR.json")
-  region = "eu-central-4"
+  region = "eu-central-3"
 }
 
 resource "google_sql_database" "database" {
