@@ -1,6 +1,9 @@
 import os
+import django
 from DomePortfolio.docs.settings import *  # noqa
 from datetime import timedelta
+from .keys import *  # noqa
+from django.conf import global_settings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INSTALLED_APPS = [
@@ -17,10 +20,15 @@ INSTALLED_APPS = [
     'drf_yasg',
     'crispy_forms',
     'mptt',
+    'imagekit',
+    'adminsortable2',
+    #'djmoney',
 
     # User defined apps
     'DomePortfolio.apps.users',
     'DomePortfolio.apps.categories',
+    'DomePortfolio.apps.portfolio',
+    'DomePortfolio.apps.shop',
 ]
 
 DATABASES = {
@@ -51,11 +59,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "media"),
 ]
 
-SECRET_KEY = '94a99e284125dbef1d6e6b98d82f0d621630e63ee9a8a22eec295ceafd4ee154'
 DEBUG = False
 AUTH_USER_MODEL = 'users.User'
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+CURRENCIES = ('USD', 'EUR')
 
 ALLOWED_HOSTS = []
 
@@ -76,6 +84,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, "templates"),
+            os.path.join(django.__path__[0] + '/forms/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -88,6 +97,20 @@ TEMPLATES = [
         },
     },
 ]
+
+# Expiration time in Seconds
+DOWNLOAD_EXPIRY_TIME = 8 * 60 * 60
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
+FILE_UPLOAD_HANDLERS = [
+    "DomePortfolio.lib.uploads.handler.UploadProgressCachedHandler"
+                       ] + global_settings.FILE_UPLOAD_HANDLERS
+
+GCP_BUCKETS = {
+    "images": "",
+    "files": "",
+}
 
 WSGI_APPLICATION = 'DomePortfolio.wsgi.application'
 

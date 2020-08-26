@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('is_superuser', models.BooleanField(default=False,
                                                      help_text='Designates that this user has all permissions without explicitly assigning them.',
                                                      verbose_name='superuser status')),
-                ('first_name', models.CharField(blank=True, max_length=30, verbose_name='first name')),
+                ('first_name', models.CharField(blank=True, max_length=150, verbose_name='first name')),
                 ('last_name', models.CharField(blank=True, max_length=150, verbose_name='last name')),
                 ('is_staff', models.BooleanField(default=False,
                                                  help_text='Designates whether the user can log into this admin site.',
