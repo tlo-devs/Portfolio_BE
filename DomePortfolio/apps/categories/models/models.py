@@ -2,12 +2,19 @@ from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
 
-class RootQueryset(models.QuerySet):
+class RootManager(models.Manager):
     root_key: str
 
-    def get_parent_leaves(self, parent_key: str) -> models.QuerySet:
+    def get_queryset(self):
+        root_id = super(RootManager, self).get_queryset().get(
+            key=self.root_key
+        ).id
+        return super(RootManager, self).get_queryset().filter(tree_id=root_id)
+
+    def get_parent_leaves(self, parent_key: str):
+        all_ = super(RootManager, self).get_queryset()
         leaves = [
-            l for l in self.filter(
+            l for l in all_.filter(
                 children__isnull=True
             ) if l.get_root().key == self.root_key
                  and l.key != "all"
@@ -15,16 +22,12 @@ class RootQueryset(models.QuerySet):
         ]
         return self.filter(id__in=[node.id for node in leaves])
 
-    def all(self):
-        root_id = self.all()
-        return
 
-
-class PortfolioRootQueryset(RootQueryset):
+class PortfolioManager(RootManager):
     root_key = "portfolio"
 
 
-class ShopRootQueryset(RootQueryset):
+class ShopManager(RootManager):
     root_key = "shop"
 
 
@@ -39,8 +42,8 @@ class CategoryTree(MPTTModel):
         related_name='children'
     )
 
-    portfolio = PortfolioRootQueryset.as_manager()
-    shop = ShopRootQueryset.as_manager()
+    portfolio = PortfolioManager()
+    shop = ShopManager()
 
     class Meta:
         unique_together = ("key", "parent")

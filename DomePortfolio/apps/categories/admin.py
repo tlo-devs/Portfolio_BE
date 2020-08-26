@@ -41,6 +41,7 @@ class CategoryTreeAdmin(MPTTModelAdmin):
         )
     category_name.short_description = "Kategoriename"
 
+    # noinspection PyMethodMayBeStatic
     def is_leaf(self, obj: Optional[CategoryTree]):
         if obj is not None and obj.key != "all":
             return obj.is_leaf_node()

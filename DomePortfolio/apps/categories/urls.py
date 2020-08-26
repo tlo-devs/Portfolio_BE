@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import re_path
 from rest_framework import routers
 from . import views
 
@@ -6,8 +6,7 @@ from . import views
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    path("shop/", views.shop),
-    path("portfolio/", views.portfolio),
+    re_path(r"shop/|portfolio/", views.category),
 ]
 
 urlpatterns += router.urls

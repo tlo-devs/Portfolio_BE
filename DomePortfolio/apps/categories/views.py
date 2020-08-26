@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from mptt.templatetags.mptt_tags import cache_tree_children
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -16,23 +17,16 @@ def recursive_node_to_dict(node):
     return result
 
 
+@swagger_auto_schema(
+    method="GET",
+    operation_summary="Get Categories",
+    security=[]
+)
 @api_view(["GET"])
-def portfolio(request):
-    obj = [c for c in CategoryTree.objects.all() if c.get_root().key != "shop"]
-    objs = CategoryTree.objects.all().filter(id__in=[node.id for node in obj])
+def category(request):
+    root_type = [p for p in request.path.split("/") if p][-1]
     res = [
         recursive_node_to_dict(n) for n in cache_tree_children(
-            objs
-        )]
-    return Response(res)
-
-
-@api_view(["GET"])
-def shop(request):
-    obj = [c for c in CategoryTree.objects.all() if c.get_root().key != "portfolio"]
-    objs = CategoryTree.objects.all().filter(id__in=[node.id for node in obj])
-    res = [
-        recursive_node_to_dict(n) for n in cache_tree_children(
-            objs
+            getattr(CategoryTree, root_type).all()
         )]
     return Response(res)
