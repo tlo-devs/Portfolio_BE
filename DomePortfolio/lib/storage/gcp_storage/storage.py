@@ -38,6 +38,8 @@ class GCPStorage(Storage, ABC):
 
     def _save(self, name: str, content: File) -> str:
         dest_blob = self.bucket.blob(name)
+        if content.name.split(".")[:-1] in ("zip", "rar"):
+            dest_blob.content_type = "application/zip"
         dest_blob.content_type = "image/png"
         dest_blob.upload_from_file(content)
         return dest_blob.public_url
