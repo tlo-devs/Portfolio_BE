@@ -6,6 +6,8 @@ from .keys import *  # noqa
 from django.conf import global_settings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_NAME = BASE_DIR.split("/")[:-1][0]
+
 INSTALLED_APPS = [
     'DomePortfolio.custom',  # manage.py overrides
     'DomePortfolio.application.CustomAdmin',  # default admin
@@ -98,18 +100,19 @@ TEMPLATES = [
     },
 ]
 
-# Expiration time in Seconds
-DOWNLOAD_EXPIRY_TIME = 8 * 60 * 60
-
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
+# Expiration time in Seconds for the product download link
+DOWNLOAD_EXPIRY_TIME = 8 * 60 * 60
 
 FILE_UPLOAD_HANDLERS = [
     "DomePortfolio.lib.uploads.handler.UploadProgressCachedHandler"
                        ] + global_settings.FILE_UPLOAD_HANDLERS
 
+# Listing of GCP bucket names by purpose (image PUBLIC, files PRIVATE)
 GCP_BUCKETS = {
-    "images": "",
-    "files": "",
+    "images": f"{PROJECT_NAME}-image-bucket".capitalize(),
+    "files": f"{PROJECT_NAME}-file-bucket".capitalize(),
 }
 
 WSGI_APPLICATION = 'DomePortfolio.wsgi.application'
