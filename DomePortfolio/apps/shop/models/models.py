@@ -5,19 +5,19 @@ from imagekit.models import ProcessedImageField
 
 from DomePortfolio.lib.images.specs import ImageSpec, ThumbnailSpec
 from DomePortfolio.lib.images.types import BaseImage
-from DomePortfolio.lib.storage.gcp_storage import GCPStorage
+from DomePortfolio.lib.storage.gcp_storage import ImageStorage, FileStorage
 import uuid
 
 
 class Item(models.Model):
     title = models.CharField(max_length=50)
-    thumbnail = ProcessedImageField(spec=ThumbnailSpec, storage=GCPStorage())
+    thumbnail = ProcessedImageField(spec=ThumbnailSpec, storage=ImageStorage())
     price = MoneyField(max_digits=19, decimal_places=4, default_currency="EUR")
     sale = models.PositiveSmallIntegerField(
         validators=[MaxValueValidator(100)], default=0
     )
     description = models.TextField()
-    download = models.FileField(storage=GCPStorage())
+    download = models.FileField(storage=FileStorage())
 
     def __str__(self):
         return self.title
@@ -25,9 +25,9 @@ class Item(models.Model):
 
 class Image(BaseImage):
     # Representing the "before" image
-    image = ProcessedImageField(spec=ImageSpec, storage=GCPStorage())
+    image = ProcessedImageField(spec=ImageSpec, storage=ImageStorage())
     # Representing the "after" image
-    image_after = ProcessedImageField(spec=ImageSpec, storage=GCPStorage())
+    image_after = ProcessedImageField(spec=ImageSpec, storage=ImageStorage())
     parent_item = models.ForeignKey(
         to=Item,
         on_delete=models.CASCADE,

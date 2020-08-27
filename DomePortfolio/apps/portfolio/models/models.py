@@ -2,13 +2,13 @@ from django.db import models
 from imagekit.models import ProcessedImageField
 from DomePortfolio.lib.images.types import BaseImage
 from DomePortfolio.lib.images.specs import ImageSpec, ThumbnailSpec
-from DomePortfolio.lib.storage.gcp_storage import GCPStorage
+from DomePortfolio.lib.storage.gcp_storage import ImageStorage
 from datetime import datetime
 
 
 class BaseItem(models.Model):
     title = models.CharField(max_length=30)
-    thumbnail = ProcessedImageField(spec=ThumbnailSpec, storage=GCPStorage())
+    thumbnail = ProcessedImageField(spec=ThumbnailSpec, storage=ImageStorage())
     category = models.ForeignKey(
         to="categories.CategoryTree",
         on_delete=models.SET_NULL,
@@ -41,7 +41,7 @@ class VideoItem(BaseItem):
 
 
 class Image(BaseImage):
-    image = ProcessedImageField(spec=ImageSpec, storage=GCPStorage())
+    image = ProcessedImageField(spec=ImageSpec, storage=ImageStorage())
     parent_item = models.ForeignKey(
         to=ImageItem,
         on_delete=models.CASCADE,
