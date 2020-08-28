@@ -4,9 +4,10 @@ from DomePortfolio.docs.settings import *  # noqa
 from datetime import timedelta
 from .keys import *  # noqa
 from django.conf import global_settings
+from pathlib import Path
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROJECT_NAME = BASE_DIR.split("/")[:-1][0]
+PROJECT_NAME = Path(BASE_DIR).name
 
 INSTALLED_APPS = [
     'DomePortfolio.custom',  # manage.py overrides
@@ -24,7 +25,7 @@ INSTALLED_APPS = [
     'mptt',
     'imagekit',
     'adminsortable2',
-    #'djmoney',
+    'djmoney',
 
     # User defined apps
     'DomePortfolio.apps.users',
@@ -111,8 +112,8 @@ FILE_UPLOAD_HANDLERS = [
 
 # Listing of GCP bucket names by purpose (image PUBLIC, files PRIVATE)
 GCP_BUCKETS = {
-    "images": f"{PROJECT_NAME}-image-bucket".capitalize(),
-    "files": f"{PROJECT_NAME}-file-bucket".capitalize(),
+    "images": f"{PROJECT_NAME}-image-bucket".lower(),
+    "files": f"{PROJECT_NAME}-file-bucket".lower(),
 }
 
 WSGI_APPLICATION = 'DomePortfolio.wsgi.application'
