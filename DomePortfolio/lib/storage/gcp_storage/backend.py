@@ -1,17 +1,14 @@
-from pathlib import Path
 from typing import ClassVar, Any, Dict
 
 from django.conf import settings
 from google.cloud import storage, exceptions
 from google.cloud.storage import Bucket
 
-KEYS_FOLDER = Path(__file__).parent.parent.parent.parent.parent / "keys"
-
 
 class GCPStorageAdapter:
     __mixin_state: ClassVar["GCPStorageAdapter"] = None
     gcloud_client: ClassVar = storage.Client.from_service_account_json(
-         KEYS_FOLDER / "CLOUD_STORAGE_OPERATOR.json"
+         settings.GCP_KEYFILE_PATH / "CLOUD_STORAGE_OPERATOR.json"
     )
 
     buckets: ClassVar[Dict[str, Bucket]] = {}
