@@ -1,11 +1,12 @@
 import datetime
 from decimal import Decimal, ROUND_HALF_EVEN
 
-import requests
 from django.conf import settings
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_cache_control
+from google.auth.transport.requests import AuthorizedSession
+from google.oauth2 import service_account
 from itsdangerous import TimestampSigner
 from itsdangerous.exc import SignatureExpired, BadSignature, BadTimeSignature
 from rest_framework import mixins, viewsets
@@ -96,9 +97,9 @@ def complete_order(request, paypal_order_id: str):
     signer = TimestampSigner(settings.SECRET_KEY)
     download_url = signer.sign(order.pk)
     return Response({
-        "paypal_order_id": "",
-        "internal_order_id": "",
-        "internal_product_id": 1,
+        "paypal_order_id": purchase.reference_id,
+        "internal_order_id": str(order.pk),
+        "internal_product_id": order.product.id,
         "status": "VALID_ORDER",
         "grant_url": download_url
     })
@@ -117,10 +118,16 @@ def download_with_order(request, grant: str):
     order = get_object_or_404(models.Order.objects.all(), pk=order_pk)
     download_url = order.product.download.url
     download_name = order.product.download.name
-    req = requests.get(
+
+    credentials = service_account.Credentials.from_service_account_file(
+        settings.GCP_KEYFILE_PATH / "CLOUD_STORAGE_OPERATOR.json"
+    )
+    sess = AuthorizedSession(credentials)
+    req = sess.get(
         download_url, stream=True
     )
     res = StreamingHttpResponse(streaming_content=req)
+
     res["Content-Disposition"] = f"attachement; filename='{download_name}'"
     res["Cache-Control"] = "no-store"
     patch_cache_control(res, max_age=0, public=True)
