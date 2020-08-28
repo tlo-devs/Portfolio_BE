@@ -92,7 +92,7 @@ class OrderFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() == 'pending':
             return queryset.filter(
-                completed=True if self.value() is "completed" else False
+                completed=True if self.value() == "completed" else False
             )
         elif self.value() is None:
             return queryset.filter(completed=True)
