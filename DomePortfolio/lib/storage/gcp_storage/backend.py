@@ -24,7 +24,7 @@ class GCPStorageAdapter:
 
     def __init(self, buckets: dict) -> None:
         try:
-            for key, name in buckets:
+            for key, name in buckets.items():
                 self.buckets[name] = self.gcloud_client.get_bucket(name)
         except exceptions.NotFound as e:
             raise e

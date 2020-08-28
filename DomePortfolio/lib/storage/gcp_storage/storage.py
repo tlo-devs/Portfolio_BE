@@ -21,7 +21,7 @@ class GCPStorage(Storage, ABC):
     bucket_name: str
 
     def __init__(self):
-        self.bucket = getattr(self.backend, self.bucket_name)
+        self.bucket = self.backend.buckets.get(self.bucket_name)
 
     def get_valid_name(self, name: str) -> str:
         *_, ext = name.split(".")
