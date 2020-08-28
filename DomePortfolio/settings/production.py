@@ -118,6 +118,8 @@ GCP_BUCKETS = {
     "files": f"{PROJECT_NAME}-file-bucket".lower(),
 }
 
+GCP_KEYFILE_PATH = Path(BASE_DIR).parent / "keys"
+
 WSGI_APPLICATION = 'DomePortfolio.wsgi.application'
 
 AUTH_PASSWORD_VALIDATORS = [
