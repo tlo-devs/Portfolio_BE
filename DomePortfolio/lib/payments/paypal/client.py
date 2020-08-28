@@ -15,11 +15,9 @@ class PayPalClient:
                 **kwargs) -> "PayPalClient":
         key = (sandbox, client_id, client_secret)
         if not cls.__interned.get(key):
-            _creds = {
-                "client_id": client_id,
-                "client_secret": client_secret
-            }
-            env = (SandboxEnvironment if sandbox else LiveEnvironment)(**_creds)
+            env = (SandboxEnvironment if sandbox else LiveEnvironment)(
+                client_id=client_id, client_secret=client_secret
+            )
 
             obj = super().__new__(cls)
             obj.environment = env
@@ -64,3 +62,6 @@ class PayPalClient:
         """
         request = OrdersGetRequest(order_id)
         return self.client.execute(request)
+
+
+__all__ = ["PayPalClient"]
