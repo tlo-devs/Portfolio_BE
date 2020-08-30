@@ -1,0 +1,29 @@
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+    {{ block.super }}
+    <script>
+        function save_event() {
+            const submit_row = document.querySelector(
+                    "#item_form > div > div.submit-row"
+            );
+            const attachees = Array.from(submit_row.children).filter((el) => {
+                if (el.type === "submit") {
+                    return el;
+                }
+            });
+            for (let elem of attachees) {
+                elem.addEventListener("click", (e) => {
+                    for (let button of submit_row.children) {
+                        button.hidden = true;
+                    }
+                    const load_text = document.createElement("p");
+                    load_text.innerText = "Please wait...";
+                    submit_row.appendChild(load_text);
+                })
+            }
+        }
+
+        save_event();
+    </script>
+{% endblock content %}
