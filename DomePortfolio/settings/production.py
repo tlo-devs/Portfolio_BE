@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'DomePortfolio.apps.categories',
     'DomePortfolio.apps.portfolio',
     'DomePortfolio.apps.shop',
+    'DomePortfolio.apps.orders',
 ]
 
 DATABASES = {
