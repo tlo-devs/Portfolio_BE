@@ -1,15 +1,14 @@
 from adminsortable2.admin import SortableInlineAdminMixin
 from django import forms
 from django.contrib import admin
+from django.contrib import messages
 from django.forms import ImageField
 from django.http import HttpResponseRedirect
-
-from .models import Item, Image, Order
-from ...lib.widgets import ImagePreviewWidget
-from django.contrib import messages
-from django.utils.translation import ngettext, gettext_lazy
 from django.shortcuts import render
-from django.contrib.admin import SimpleListFilter
+from django.utils.translation import ngettext, gettext_lazy
+
+from .models import Item, Image
+from ...lib.widgets import ImagePreviewWidget
 
 
 class ImageInline(SortableInlineAdminMixin, admin.TabularInline):
@@ -65,49 +64,3 @@ class ShopItemAdmin(admin.ModelAdmin):
         )
 
     initiate_sale.short_description = gettext_lazy("Start Sale")
-
-
-class OrderFilter(SimpleListFilter):
-    title = gettext_lazy("Filter")
-
-    parameter_name = "completed"
-
-    def lookups(self, request, model_admin):
-        return (
-            (None, "Completed"),
-            ("pending", "Pending"),
-            ("all", "All")
-        )
-
-    def choices(self, changelist):
-        for lookup, title in self.lookup_choices:
-            yield {
-                'selected': self.value() == lookup,
-                'query_string': changelist.get_query_string({
-                    self.parameter_name: lookup,
-                }, []),
-                'display': title,
-            }
-
-    def queryset(self, request, queryset):
-        if self.value() == 'pending':
-            return queryset.filter(
-                completed=True if self.value() == "completed" else False
-            )
-        elif self.value() is None:
-            return queryset.filter(completed=True)
-
-
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_filter = [OrderFilter]
-    list_display = ("product", "completed", "pk")
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request):
-        return False
