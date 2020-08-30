@@ -18,7 +18,10 @@ from .models import Order
 
 @api_view(["GET"])
 def complete_order(request, order_id: str):
+    if not uuid4_is_valid(order_id):
+        return Response(status=404)
     order = get_object_or_404(Order.objects.all(), pk=order_id)
+
     paypal_order_id = order.related_paypal_order
     paypal = PayPalClient(
         sandbox=settings.PAYPAL_SANDBOX,
