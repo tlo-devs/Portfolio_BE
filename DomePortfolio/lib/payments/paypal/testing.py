@@ -1,5 +1,6 @@
 from django.conf import settings
 from paypalhttp.http_response import HttpResponse
+from .client import PayPalClient
 
 
 class MockPayPalOrder:
@@ -39,9 +40,9 @@ class PayPalTestClient:
         data = order.result
         self._order = MockPayPalOrder(
             paypal_id=data.id,
-            reference=data.purchase_units.reference_id,
-            price=data.purchase_units.amount.value,
-            currency=data.purchase_units.amount.currency_code
+            reference=data.purchase_units[0].reference_id,
+            price=data.purchase_units[0].amount.value,
+            currency=data.purchase_units[0].amount.currency_code
         )
 
     def complete_payment(self):
