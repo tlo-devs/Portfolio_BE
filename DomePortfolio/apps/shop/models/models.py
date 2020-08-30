@@ -16,7 +16,7 @@ class Item(models.Model):
     sale = models.PositiveSmallIntegerField(
         validators=[MaxValueValidator(100)], default=0
     )
-    description = models.TextField()
+    description = models.TextField(null=True)
     download = models.FileField(storage=FileStorage())
 
     def __str__(self):
