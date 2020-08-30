@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include, re_path
 
@@ -30,6 +29,7 @@ urlpatterns = [
     path("categories/", include("DomePortfolio.apps.categories.urls", namespace="categories")),
     path("portfolio/", include("DomePortfolio.apps.portfolio.urls", namespace="portfolio")),
     path("shop/", include("DomePortfolio.apps.shop.urls", namespace="shop")),
+    path("orders/<str:order_id>/", include("DomePortfolio.apps.orders.urls", namespace="orders"))
 ]
 
 if settings.DEBUG:
