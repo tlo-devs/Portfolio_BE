@@ -11,7 +11,7 @@ Website.
 2. Add keys folder at project root
 
 3. Add CLOUD_STORAGE_OPERATOR.json auth
-file for GCP in the same folder
+file for GCP in the keys folder
 
 4. Add file named keys.py inside of the
 settings module, containing the
@@ -23,6 +23,10 @@ follwing variables:
 
 5. Run the included docker-compose file,
 located under /docker/docker-compose.yml
-by running:
+by running:  
 ``docker-compose up --build -f docker/docker-compose.yml``  
-Remember to adjust the paths to your OS
+Remember to adjust the paths to your OS  
+
+The application should now be available at
+localhost:8001.  
+The OpenAPI docs can be found at /redoc
