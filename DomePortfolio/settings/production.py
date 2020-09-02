@@ -59,6 +59,7 @@ SIMPLE_JWT = {
 }
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/var/django/projects/DomePortfolio/static/'  # noqa
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "media"),
 ]

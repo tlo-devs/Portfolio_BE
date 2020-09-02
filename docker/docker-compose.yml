@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  uwsgi:
+    expose:
+      - 3031
+    ports:
+      - 3031:3031
+    build:
+      context: ..
+      dockerfile: docker/uwsgi.dockerfile
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: docker/nginx.dockerfile
+    depends_on:
+      - uwsgi
+    ports:
+      - 9500:80
