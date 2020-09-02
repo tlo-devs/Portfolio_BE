@@ -1,10 +1,14 @@
 import os
-import django
-from DomePortfolio.docs.settings import *  # noqa
 from datetime import timedelta
-from .keys import *  # noqa
-from django.conf import global_settings
 from pathlib import Path
+
+import django
+import mimetypes
+
+from DomePortfolio.docs.settings import *  # noqa
+from .keys import *  # noqa
+
+mimetypes.add_type("text/css", ".css", True)  # fix issue with CSS files in deployment
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_NAME = Path(BASE_DIR).name
@@ -107,12 +111,6 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 # Expiration time in Seconds for the product download link
 DOWNLOAD_EXPIRY_TIME = 8 * 60 * 60
-
-"""
-FILE_UPLOAD_HANDLERS = [
-    "DomePortfolio.lib.uploads.handler.UploadProgressCachedHandler"
-                       ] + global_settings.FILE_UPLOAD_HANDLERS
-"""
 
 # Listing of GCP bucket names by purpose (image PUBLIC, files PRIVATE)
 GCP_BUCKETS = {
