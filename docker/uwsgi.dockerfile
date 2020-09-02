@@ -1,10 +1,6 @@
-FROM python:3.8.5-slim
+FROM tiangolo/uwsgi-nginx:python3.8
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-RUN apt-get update
-RUN apt-get install -y curl gcc build-essential python-dev
+RUN apt-get update && apt-get install -y curl ca-certificates mime-support
 
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/opt/poetry python && \
     cd /usr/local/bin && \
@@ -12,28 +8,22 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
     poetry config virtualenvs.create false
 
 WORKDIR /application/
-
-COPY ["pyproject.toml", "poetry.lock", "manage.py", "./"]
-
+COPY ["pyproject.toml", "poetry.lock", "manage.py", "server/uwsgi.ini", "./"]
 RUN poetry install --no-root --no-dev
-RUN poetry add uwsgi
 
 WORKDIR /application/keys/
-
 COPY ["keys", "./"]
 
 WORKDIR /application/DomePortfolio/
-
 COPY ["DomePortfolio", "./"]
-
-ENV DJANGO_SETTINGS_MODULE DomePortfolio.settings.development
 
 WORKDIR /application/
 
+ENV UWSGI_INI /application/uwsgi.ini
+ENV DJANGO_SETTINGS_MODULE DomePortfolio.settings.development
+
 RUN python manage.py migrate && python manage.py collectstatic
+COPY ["server/custom.conf", "/etc/nginx/conf.d/"]
 
-WORKDIR /
-COPY ["./server/uwsgi.ini", "./"]
-
-EXPOSE 3031
-CMD ["uwsgi", "uwsgi.ini"]
+ENV LISTEN_PORT 8080
+EXPOSE 8080
