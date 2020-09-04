@@ -63,5 +63,20 @@ class PayPalClient:
         request = OrdersGetRequest(order_id)
         return self.client.execute(request)
 
+    def is_payment_completed(self, order_id: str) -> bool:
+        """
+        Convinience method to allow for easier mocking of the PayPal client
+        Returns true if a given PayPal order qualifies as complete
+
+        :param order_id: ID of the PayPal payment
+        :return: Returns true if a given PayPal order qualifies as complete,
+        else false
+        """
+        res = self.get_payment(order_id)
+        if res.result.status != "COMPLETED":
+            return False
+        else:
+            return True
+
 
 __all__ = ["PayPalClient"]
