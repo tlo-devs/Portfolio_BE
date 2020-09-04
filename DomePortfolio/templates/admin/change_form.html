@@ -5,7 +5,7 @@
     <script>
         function save_event() {
             const submit_row = document.querySelector(
-                    "#item_form > div > div.submit-row"
+                    "div.submit-row"
             );
             const attachees = Array.from(submit_row.children).filter((el) => {
                 if (el.type === "submit") {
