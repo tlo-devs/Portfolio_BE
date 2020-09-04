@@ -4,20 +4,35 @@ from django.conf import settings
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_cache_control
+from drf_yasg.utils import swagger_auto_schema
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 from itsdangerous import TimestampSigner
 from itsdangerous.exc import BadSignature, SignatureExpired, BadTimeSignature
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
+from .models import serializers as app_serializers
 
 from DomePortfolio.lib.payments.paypal import PayPalClient
 from DomePortfolio.lib.utils import uuid4_is_valid
 from .models import Order
 
 
+@swagger_auto_schema(
+    method="GET",
+    operation_summary="Complete Order",
+    operation_description="Complete an order on the Backend, "
+                          "after the PayPal payment has been completed",
+    security=[],
+    responses={
+        status.HTTP_201_CREATED: app_serializers.CompleteOrderSerializer(),
+        status.HTTP_400_BAD_REQUEST: app_serializers.ErrorSerializer(),
+    }
+)
 @api_view(["GET"])
 def complete_order(request, order_id: str):
+    # Validate that the order exists and is a valid UUIDv4
     if not uuid4_is_valid(order_id):
         return Response(status=404)
     order = get_object_or_404(Order.objects.all(), pk=order_id)
@@ -59,14 +74,18 @@ def complete_order(request, order_id: str):
     signer = TimestampSigner(settings.SECRET_KEY)
     download_url = signer.sign(order.pk)
     return Response({
-        "paypal_order_id": purchase.reference_id,
-        "internal_order_id": str(order.pk),
-        "internal_product_id": order.product.id,
-        "status": "VALID_ORDER",
-        "grant_url": download_url
-    })
+        "order_id": purchase.reference_id,
+        "grant": download_url
+    }, 201)
 
 
+@swagger_auto_schema(
+    method="GET",
+    operation_summary="Download Item",
+    operation_description="Download the purchased digital good "
+                          "via a grant received after purchase",
+    security=[]
+)
 @api_view(["GET"])
 def download_with_order(request, order_id: str):
     if not uuid4_is_valid(order_id):
