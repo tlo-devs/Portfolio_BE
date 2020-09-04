@@ -40,7 +40,6 @@ class ShopItemChangeForm(forms.ModelForm):
 class ShopItemAdmin(admin.ModelAdmin):
     inlines = [ImageInline]
     actions = ["initiate_sale"]
-    change_form_template = "shop/change_form.html"
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         if not change:
