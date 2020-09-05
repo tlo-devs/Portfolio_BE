@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 from django.conf import settings
 from django.http import StreamingHttpResponse
@@ -9,14 +10,15 @@ from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 from itsdangerous import TimestampSigner
 from itsdangerous.exc import BadSignature, SignatureExpired, BadTimeSignature
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework import status
-from .models import serializers as app_serializers
+from rest_framework.decorators import api_view
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from DomePortfolio.lib.payments.paypal import PayPalClient
 from DomePortfolio.lib.utils import uuid4_is_valid
 from .models import Order
+from .models import serializers as app_serializers
 
 
 @swagger_auto_schema(
@@ -31,7 +33,8 @@ from .models import Order
     }
 )
 @api_view(["GET"])
-def complete_order(request, order_id: str):
+def complete_order(request: Request,
+                   order_id: str) -> Response:
     # Validate that the order exists and is a valid UUIDv4
     if not uuid4_is_valid(order_id):
         return Response(status=404)
@@ -84,16 +87,25 @@ def complete_order(request, order_id: str):
     operation_summary="Download Item",
     operation_description="Download the purchased digital good "
                           "via a grant received after purchase",
-    security=[]
+    security=[],
+    responses={
+        status.HTTP_200_OK: "Returns the downloadable content",
+        status.HTTP_400_BAD_REQUEST: app_serializers.ErrorSerializer(),
+        status.HTTP_404_NOT_FOUND: "",
+    },
+    query_serializer=app_serializers.QueryArgsSerializer(),
 )
 @api_view(["GET"])
-def download_with_order(request, order_id: str):
+def download_with_order(request: Request,
+                        order_id: str
+                        ) -> Union[Response, StreamingHttpResponse]:
     if not uuid4_is_valid(order_id):
         return Response(status=404)
     grant = request.query_params.get("grant", None)
     if grant is None:
         return Response({
-            "info": "'grant' is required as a query argument"
+            "error": "MISSING_ARGS",
+            "msg": "'grant' is required as a query argument"
         }, 400)
 
     order = get_object_or_404(Order.objects.all(), pk=order_id)
@@ -106,7 +118,7 @@ def download_with_order(request, order_id: str):
             "msg": "Invalid Signature"
         }, 400)
     if not order_pk == order_id:
-        return Response(status=400)
+        return Response(status=404)
 
     download_url = order.product.download.url
     download_name = order.product.download.name
