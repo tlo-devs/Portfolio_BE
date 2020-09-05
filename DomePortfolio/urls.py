@@ -25,9 +25,9 @@ urlpatterns = [
     re_path(r'^favicon\.ico$', favicon_view),
 
     # Authentication URL paths
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     # User defined URL paths
     path("categories/", include("DomePortfolio.apps.categories.urls", namespace="categories")),
