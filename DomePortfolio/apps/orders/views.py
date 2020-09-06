@@ -40,6 +40,7 @@ def complete_order(request: Request,
         return Response(status=404)
     order = get_object_or_404(Order.objects.all(), pk=order_id)
 
+    # Validate the status of the corresponding PayPal order
     paypal_order_id = order.related_paypal_order
     paypal = PayPalClient(
         sandbox=settings.PAYPAL_SANDBOX,
@@ -47,21 +48,19 @@ def complete_order(request: Request,
         client_secret=settings.PAYPAL_SECRET,
     )
     res = paypal.get_payment(paypal_order_id)
-    if res.result.status != "COMPLETED":
+    if not paypal.is_payment_completed(paypal_order_id):
         return Response({
             "error": "INVALID_ORDER_STATUS",
             "msg": "PayPal Order Status must be 'COMPLETED'"
         }, 400)
 
+    # Update the order with the captured data
     purchase = res.result.purchase_units
     payer = res.result.payer
-
-    order = Order.objects.get(pk=purchase.reference_id)
     current_time = datetime.datetime.now()
     download_time = current_time + datetime.timedelta(
         seconds=settings.DOWNLOAD_EXPIRY_TIME
     )
-
     params = {
         "completed": True,
         "ordered_on": current_time,
@@ -74,6 +73,7 @@ def complete_order(request: Request,
         setattr(order, key, item)
     order.save()
 
+    # Encode the grant and send it to the client
     signer = TimestampSigner(settings.SECRET_KEY)
     download_url = signer.sign(order.pk)
     return Response({
@@ -99,6 +99,8 @@ def complete_order(request: Request,
 def download_with_order(request: Request,
                         order_id: str
                         ) -> Union[Response, StreamingHttpResponse]:
+    # Validate that the order exists and is a valid UUIDv4
+    # We also check if the grant query argument exists
     if not uuid4_is_valid(order_id):
         return Response(status=404)
     grant = request.query_params.get("grant", None)
@@ -107,8 +109,9 @@ def download_with_order(request: Request,
             "error": "MISSING_ARGS",
             "msg": "'grant' is required as a query argument"
         }, 400)
-
     order = get_object_or_404(Order.objects.all(), pk=order_id)
+
+    # Validate that the grant is valid
     signer = TimestampSigner(settings.SECRET_KEY)
     try:
         order_pk = signer.unsign(grant, max_age=settings.DOWNLOAD_EXPIRY_TIME)
@@ -123,6 +126,8 @@ def download_with_order(request: Request,
     download_url = order.product.download.url
     download_name = order.product.download.name
 
+    # Authenticate to Cloud Storage and prepare a streaming request,
+    # for the users file download
     credentials = service_account.Credentials.from_service_account_file(
         settings.GCP_KEYFILE_PATH / "CLOUD_STORAGE_OPERATOR.json"
     )
@@ -132,6 +137,7 @@ def download_with_order(request: Request,
     )
     res = StreamingHttpResponse(streaming_content=req)
 
+    # Adjust the headers for the download and send the response
     res["Content-Disposition"] = f"attachement; filename='{download_name}'"
     res["Cache-Control"] = "no-store"
     patch_cache_control(res, max_age=0, public=True)
