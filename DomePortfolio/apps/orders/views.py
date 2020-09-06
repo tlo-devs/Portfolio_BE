@@ -5,6 +5,7 @@ from django.conf import settings
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_cache_control
+from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
@@ -55,18 +56,20 @@ def complete_order(request: Request,
         }, 400)
 
     # Update the order with the captured data
-    purchase = res.result.purchase_units
+    reference_id = res.result.purchase_units.reference_id
     payer = res.result.payer
-    current_time = datetime.datetime.now()
+    payer_id = payer.payer_id
+    payer_email = payer.email_address
+    current_time = timezone.now()
     download_time = current_time + datetime.timedelta(
         seconds=settings.DOWNLOAD_EXPIRY_TIME
     )
     params = {
         "completed": True,
-        "ordered_on": current_time,
-        "customer_email": payer.email_address,
-        "customer_id": payer.payer_id,
         "product_downloads_remaining": 1,
+        "ordered_on": current_time,
+        "customer_email": payer_email,
+        "customer_id": payer_id,
         "download_expires_on": download_time,
     }
     for key, item in params.items():
@@ -75,9 +78,9 @@ def complete_order(request: Request,
 
     # Encode the grant and send it to the client
     signer = TimestampSigner(settings.SECRET_KEY)
-    download_url = signer.sign(order.pk)
+    download_url = signer.sign(order.pk.hex)
     return Response({
-        "order_id": purchase.reference_id,
+        "order_id": reference_id,
         "grant": download_url
     }, 201)
 
@@ -115,6 +118,7 @@ def download_with_order(request: Request,
     signer = TimestampSigner(settings.SECRET_KEY)
     try:
         order_pk = signer.unsign(grant, max_age=settings.DOWNLOAD_EXPIRY_TIME)
+        order_pk = order_pk.decode()
     except SignatureExpired or BadSignature or BadTimeSignature:
         return Response({
             "error": "BAD_SIGNATURE",
@@ -123,13 +127,14 @@ def download_with_order(request: Request,
     if not order_pk == order_id:
         return Response(status=404)
 
-    download_url = order.product.download.url
-    download_name = order.product.download.name
+    download_url = order.product.download.name
+    download_name = "file"
 
     # Authenticate to Cloud Storage and prepare a streaming request,
     # for the users file download
     credentials = service_account.Credentials.from_service_account_file(
-        settings.GCP_KEYFILE_PATH / "CLOUD_STORAGE_OPERATOR.json"
+        settings.GCP_KEYFILE_PATH / "CLOUD_STORAGE_OPERATOR.json",
+        scopes=["https://www.googleapis.com/auth/devstorage.read_only"]
     )
     sess = AuthorizedSession(credentials)
     req = sess.get(
