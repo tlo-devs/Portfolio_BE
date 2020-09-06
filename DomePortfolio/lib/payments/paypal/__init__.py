@@ -1,4 +1,4 @@
 from .client import PayPalClient
-from .testing import PayPalTestClient
+from .testing import MockPayPalResponse
 
-__all__ = ["PayPalClient", "PayPalTestClient"]
+__all__ = ["PayPalClient", "MockPayPalResponse"]

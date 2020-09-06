@@ -1,86 +1,51 @@
-from django.conf import settings
-from paypalhttp.http_response import HttpResponse
-from .client import PayPalClient
+from typing import ClassVar
 
 
-class MockPayPalOrder:
-    def __init__(self, *,
-                 paypal_id: str,
-                 price: str,
-                 currency: str,
-                 reference: str) -> None:
-        self.price = price
-        self.currency = currency
-        self.reference = reference
-        self.id = paypal_id
-        self.status = "CREATED"
-        self.intent = None
+class AttrDict(dict):
+    __slots__ = []
+    __doc__ = ""
 
-    def approve(self):
-        self.status = "APPROVED"
-
-    def complete(self):
-        self.status = "COMPLETED"
-        self.intent = "CAPTURE"
+    def __getattr__(self, item):
+        return super(AttrDict, self).__getitem__(item)
 
 
-class PayPalTestClient:
-    """
-    This class takes an existing PayPal order
-    and mocks the rest of its lifecycle based on the initial data.
-    """
+class MockPayPalResponse:
+    purchase_units_schema: ClassVar[tuple] = (
+        "reference_id",
+    )
+    payer_schema: ClassVar[tuple] = (
+        "payer_id",
+        "email_address",
+    )
 
-    def __init__(self, paypal_order_id: str):
-        client = PayPalClient(
-            client_id=settings.PAYPAL_CLIENT,
-            client_secret=settings.PAYPAL_SECRET,
-            sandbox=True
+    def __init__(self,
+                 purchase_units: dict,
+                 payer: dict,
+                 status_code: int = 200) -> None:
+        # Make sure that both dicts fit the required schema
+        if not self._enforce_schema(
+            self.purchase_units_schema, purchase_units
+        ) or not self._enforce_schema(
+            self.payer_schema, payer
+        ):
+            raise ValueError("Schema did not match")
+
+        self.result = AttrDict(
+            purchase_units=AttrDict(purchase_units),
+            payer=AttrDict(payer),
         )
-        order = client.get_payment(paypal_order_id)
-        data = order.result
-        self._order = MockPayPalOrder(
-            paypal_id=data.id,
-            reference=data.purchase_units[0].reference_id,
-            price=data.purchase_units[0].amount.value,
-            currency=data.purchase_units[0].amount.currency_code
-        )
+        self.status_code = status_code
 
-    def complete_payment(self):
-        self._order.complete()
-        response_data = {
-            "id": self._order.id,
-            "intent": self._order.intent,
-            "status": self._order.status,
-            "purchase_units": [
-                {
-                    "reference_id": self._order.reference,
-                    "amount": {
-                        "currency_code": self._order.currency,
-                        "value": self._order.price,
-                    },
-                    "payee": {
-                        "email_address": "sb-utijy1297964@personal.example.com",
-                        "merchant_id": "Q7HS8BJ65TDC6"
-                    },
-                }
-            ],
-            "payer": {
-                "name": {
-                    "given_name": "John",
-                    "surname": "Doe"
-                },
-                "email_address": "sb-7uolw1287648@personal.example.com",
-                "payer_id": "DMNWL4LPAT23G",
-                "address": {
-                    "country_code": "DE"
-                }
-            },
-        }
-        response = HttpResponse(
-            response_data,
-            status_code=200
-        )
-        return response
+    @classmethod
+    def _enforce_schema(cls, schema: tuple, obj: dict) -> bool:
+        if not len(schema) == len(obj.keys()):
+            return False
+        try:
+            for key in schema:
+                obj.__getitem__(key)
+        except KeyError:
+            return False
+        return True
 
 
-__all__ = ["PayPalTestClient", "MockPayPalOrder"]
+__all__ = ["MockPayPalResponse"]
