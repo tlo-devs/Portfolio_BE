@@ -1,26 +1,33 @@
-from DomePortfolio.lib.payments.paypal import PayPalTestClient
-from django.test import TestCase, Client
-from DomePortfolio.apps.shop.models import Item as ShopItem
 from decimal import Decimal
+from pathlib import Path
+from unittest import mock
+
+from django.http import QueryDict
+from django.test import TestCase, Client
 from django.urls import reverse
-import responses
+from rest_framework import status
 
-
-BASE_URL = "http://localhost:8000/shop"
+from DomePortfolio.apps.shop.models import Item as ShopItem
+from DomePortfolio.lib.payments.paypal import MockPayPalResponse
+from DomePortfolio.lib.storage.gcp_storage import FileStorage
 
 
 class PaymentFlowTestCase(TestCase):
     def setUp(self) -> None:
         self.testing_client = Client()
-        self.item = ShopItem.objects.create(
-            title="Test Item",
-            thumbnail="",
-            price=Decimal("10.0000"),
-            price_currency="EUR",
-            download=""
-        )
+        with open(Path(
+            "/c/Users/kochb/Downloads/serverless-image-handler.template"
+        ), "r") as fin:
+            self.item = ShopItem.objects.create(
+                title="Test Item",
+                thumbnail="",
+                price=Decimal("10.0000"),
+                price_currency="EUR",
+                download=FileStorage().save(
+                    fin.name, content=fin
+                )
+            )
 
-    @responses.activate
     def test_payment_flow(self):
         """
         Tests the applications payment flow,
@@ -35,34 +42,40 @@ class PaymentFlowTestCase(TestCase):
         This test assumes the existence of already created shop_items
         """
         # Call create_payment
-        responses.add(
-            responses.GET,
-            "https://api.sandbox.paypal.com/v2/checkout/orders",
-            status=201,
-            json={
-                "id": "5O190127TN364715T",
-                "status": "CREATED"
-            }
-        )
         res = self.testing_client.get(
-            reverse("orders:complete", args=(self.item.pk,))
+            reverse("shop:item-payment", args=(self.item.pk,))
         )
-        assert res.status_code == 201
+        assert res.status_code == status.HTTP_201_CREATED
+        order_id = res.json().get("order")
+
+        # Mock the associated PayPal order lifecycle
+        patch = mock.patch(
+            "DomePortfolio.apps.orders.views.PayPalClient",
+            is_payment_completed=True,
+        )
+        with patch as patched_client:
+            patched_client.return_value.get_payment.return_value = MockPayPalResponse(
+                    purchase_units={"reference_id": order_id},
+                    payer={
+                        "payer_id": "dfghjklkjhgfg",
+                        "email_address": "m@uri.ce"
+                    }
+                )
+            # Complete the order on backend
+            res = self.testing_client.get(
+                reverse("orders:complete", args=(order_id,))
+            )
+        assert res.status_code == status.HTTP_201_CREATED
         data = res.json()
-        paypal_order_id = data.get("paypal_order_id")
-
-        # Mock the remaining lifecycle of the order
-        order = PayPalTestClient(paypal_order_id)
-        order.complete_payment()
-
-        # Complete the order on the Backend
-        res = self.testing_client.get(
-            reverse("shop:capture", args=(paypal_order_id,))
-        )
-        assert res.status_code == 200
-        data = res.data.json()
-        grant = data.get("grant_url")
+        order_id, grant = data.get("order_id"), data.get("grant")
 
         # Test the download functionality via grant
-        res = client.get(f"{BASE_URL}/{grant}/download/")
-        assert res.status_code == 200
+        q_args = QueryDict("", mutable=True)
+        q_args["grant"] = grant
+        res = self.testing_client.get(
+            "{base_url}?{query_args}".format(
+                base_url=reverse('orders:download', args=(order_id,)),
+                query_args=q_args.urlencode()
+            )
+        )
+        assert res.status_code == status.HTTP_200_OK
