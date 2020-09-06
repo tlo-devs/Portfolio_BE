@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.request import Request
 
 from DomePortfolio.lib.payments.paypal import PayPalClient
 from .models import models
@@ -19,7 +20,7 @@ class ShopViewset(mixins.RetrieveModelMixin,
     queryset = models.Item.objects.all()
 
     @action(detail=True, methods=["get"], name="Create Payment")
-    def payment(self, request, pk: str):
+    def payment(self, request: Request, pk: str) -> Response:
         """Create a PayPal payment from a shop item"""
         obj = get_object_or_404(self.queryset, pk=pk)
 
@@ -41,11 +42,12 @@ class ShopViewset(mixins.RetrieveModelMixin,
             amount=price,
             purchased_with_sale=obj.sale
         )
+        order_id = order.pk.hex
         res = paypal.create_payment(
-            price=price, reference=str(order.pk), currency=currency
+            price=price, reference=order_id, currency=currency
         )
         order.related_paypal_order = res.result.id
         order.save()
         return Response({
-            "order": str(order.pk),
+            "order": order_id,
         }, 201)
