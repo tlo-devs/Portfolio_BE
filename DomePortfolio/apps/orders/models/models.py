@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-from djmoney.forms import MoneyField
+from djmoney.models.fields import MoneyField
 
 
 class Order(models.Model):
@@ -31,3 +31,6 @@ class Order(models.Model):
 
     def __str__(self) -> str:
         return f"Order for Item {self.product.pk}; {self.product.title}"
+
+
+__all__ = ["Order"]
