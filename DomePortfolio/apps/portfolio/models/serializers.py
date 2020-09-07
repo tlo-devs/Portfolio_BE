@@ -23,6 +23,7 @@ class ImageItemSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super(ImageItemSerializer, self).to_representation(instance)
         data["thumbnail"] = instance.thumbnail.name
+        data["type"] = "image"
         return data
 
 
@@ -39,4 +40,5 @@ class VideoItemSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super(VideoItemSerializer, self).to_representation(instance)
         data["thumbnail"] = instance.thumbnail.name
+        data["type"] = "video"
         return data
