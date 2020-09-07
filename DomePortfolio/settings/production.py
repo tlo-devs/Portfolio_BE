@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'imagekit',
     'adminsortable2',
     'djmoney',
+    'corsheaders',
 
     # User defined apps
     'DomePortfolio.apps.users',
@@ -75,6 +76,17 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 CURRENCIES = ('USD', 'EUR')
 
 ALLOWED_HOSTS = []
+
+# CORS Configuration
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'OPTIONS',
+]
+
+CORS_EXPOSE_HEADERS = [
+    "Content-Disposition", "x-filename"
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
