@@ -3,10 +3,12 @@
 <link rel="stylesheet" href="{% static 'extrawidgets/video_preview.css' %}">
 
 <div x-data="{
-url: {% if widget.value %}'{{ widget.value }}'{% else %}''{% endif %}
+url: {% if widget.value %}'{{ widget.value }}'{% else %}''{% endif %},
+content: ''
 }" id="{{ widget.attrs.id }}">
     <input type="text" name="{{ widget.name }}"
            @keydown.enter.prevent="url = youtube_parser($event.target.value)"
+           x-model="content"
            {% if widget.required %}required{% endif %}
            {% if widget.is_hidden %}hidden{% endif %}
            {% if widget.value %}value="embed_url({{ widget.value }})"{% endif %}
@@ -19,5 +21,5 @@ url: {% if widget.value %}'{{ widget.value }}'{% else %}''{% endif %}
                 allowfullscreen x-show="url">
         </iframe>
     </div>
-    <input type="hidden" :value="url" name="{{ widget.name }}-id">
+    <input type="hidden" :value="url ? url : youtube_parser(content)" name="{{ widget.name }}-id">
 </div>
