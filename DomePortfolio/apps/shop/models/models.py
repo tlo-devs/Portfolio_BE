@@ -18,6 +18,10 @@ class Item(models.Model):
     description = models.TextField(null=True)
     download = models.FileField(storage=FileStorage())
 
+    class Meta:
+        verbose_name = "Product"
+        verbose_name_plural = "Products"
+
     def __str__(self):
         return self.title
 
