@@ -47,6 +47,8 @@ class CategoryTree(MPTTModel):
 
     class Meta:
         unique_together = ("key", "parent")
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
 
     class MPTTMeta:
         order_insertion_by = ['name']
