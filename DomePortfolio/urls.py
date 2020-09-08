@@ -3,11 +3,6 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic.base import RedirectView
 
-from .apps.users.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView,
-)
 from .docs.openapi import schema_view
 
 favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
@@ -23,11 +18,6 @@ urlpatterns = [
             name='schema-redoc'),
     re_path(r'^api-auth/', include('rest_framework.urls')),
     re_path(r'^favicon\.ico$', favicon_view),
-
-    # Authentication URL paths
-    # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     # User defined URL paths
     path("categories/", include("DomePortfolio.apps.categories.urls", namespace="categories")),
