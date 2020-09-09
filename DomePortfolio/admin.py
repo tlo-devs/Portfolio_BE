@@ -51,6 +51,9 @@ class SiteAdmin(admin.AdminSite):
         # Do not process if the attribute has not been set
         if not self.admin_app_ordering:
             return app_list
+        # If we are at the login site
+        if request.user.id is None:
+            return app_list
 
         new_app_list = []
         for original_app_label, additional_app_labels in self.admin_app_ordering.items():
