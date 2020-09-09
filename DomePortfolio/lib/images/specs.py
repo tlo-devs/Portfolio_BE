@@ -16,6 +16,9 @@ class ImageSpec(Spec):
 
 class ThumbnailSpec(Spec):
     processors = [
+        ResizeToFitAspectRatio(
+            horizontal_aspect=16, vertical_aspect=9,
+        ),
         ResizeToFit(640, 360)
     ]
     format = "PNG"
