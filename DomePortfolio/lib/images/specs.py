@@ -14,6 +14,17 @@ class ImageSpec(Spec):
     options = {"quality": 90, "optimize": True}
 
 
+class ShopImageSpec(Spec):
+    processors = [
+        ResizeToFitAspectRatio(
+            horizontal_aspect=4, vertical_aspect=5,
+        ),
+        ResizeToFit(width=1120, height=1400),
+    ]
+    format = "PNG"
+    options = {"quality": 90, "optimize": True}
+
+
 class ThumbnailSpec(Spec):
     processors = [
         ResizeToFitAspectRatio(
@@ -25,4 +36,4 @@ class ThumbnailSpec(Spec):
     options = {"quality": 90, "optimize": True}
 
 
-__all__ = ["ImageSpec", "ThumbnailSpec"]
+__all__ = ["ImageSpec", "ShopImageSpec", "ThumbnailSpec"]
