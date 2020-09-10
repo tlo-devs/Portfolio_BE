@@ -4,6 +4,7 @@ from pathlib import Path
 
 import django
 import mimetypes
+from DomePortfolio.lib.utils import Tfvars
 
 from DomePortfolio.docs.settings import *  # noqa
 from .keys import *  # noqa
@@ -12,6 +13,7 @@ mimetypes.add_type("text/css", ".css", True)  # fix issue with CSS files in depl
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_NAME = Path(BASE_DIR).name
+TERRAFORM = Tfvars(Path(BASE_DIR).parent / ".terraform" / "terraform.tfvars")
 
 INSTALLED_APPS = [
     'DomePortfolio.custom',  # manage.py overrides
@@ -42,8 +44,13 @@ INSTALLED_APPS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'PORT': 5432,
+        'USERNAME': TERRAFORM.vars.db_username,
+        'PASSWORD': TERRAFORM.vars.db_password,
+        'OPTIONS': {
+            'encoding': 'UTF-8'
+        },
     }
 }
 
