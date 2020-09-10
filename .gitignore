@@ -17,9 +17,11 @@ build
 dist
 *.egg-info
 *.css.map
+.terraform/.terraform
 
 # Exclude authentication information
 keys
+*.tfvars
 
 # Exclude Database
 *.sqlite3
