@@ -2,7 +2,7 @@ from adminsortable2.admin import SortableInlineAdminMixin
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
-from django.forms import ImageField
+from django.forms import ImageField, IntegerField
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.translation import ngettext, gettext_lazy
@@ -15,21 +15,17 @@ class ImageInline(SortableInlineAdminMixin, admin.TabularInline):
     model = Image
     extra = 0
     classes = ["collapse"]
-    max_num = 50
+    max_num = 10
     min_num = 1
 
 
-class ShopItemCreateForm(forms.ModelForm):
+class ShopItemForm(forms.ModelForm):
     thumbnail = ImageField(widget=ImagePreviewWidget)
-
-    class Meta:
-        model = Item
-        fields = "__all__"
-        exclude = ("sale",)
-
-
-class ShopItemChangeForm(forms.ModelForm):
-    thumbnail = ImageField(widget=ImagePreviewWidget)
+    sale = IntegerField(
+        min_value=0,
+        max_value=100,
+        help_text="Item price reduction (sale) in percent"
+    )
 
     class Meta:
         model = Item
@@ -40,11 +36,7 @@ class ShopItemChangeForm(forms.ModelForm):
 class ShopItemAdmin(admin.ModelAdmin):
     inlines = [ImageInline]
     actions = ["initiate_sale"]
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        if not change:
-            return ShopItemCreateForm
-        return ShopItemChangeForm
+    form = ShopItemForm
 
     def initiate_sale(self, request, queryset):
         if "apply" in request.POST:
