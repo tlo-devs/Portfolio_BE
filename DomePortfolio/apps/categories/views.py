@@ -24,6 +24,9 @@ def recursive_node_to_dict(node):
 )
 @api_view(["GET"])
 def category(request, root_key: str):
-    root = get_object_or_404(CategoryTree.objects.all(), key=root_key)
+    root = get_object_or_404(
+        CategoryTree.objects.all().filter(parent_id__isnull=True),
+        key=root_key
+    )
     res = recursive_node_to_dict(root)
     return Response(res)
