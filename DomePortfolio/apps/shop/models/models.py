@@ -3,7 +3,7 @@ from django.db import models
 from djmoney.models.fields import MoneyField
 from imagekit.models import ProcessedImageField
 
-from DomePortfolio.lib.images.specs import ImageSpec, ThumbnailSpec
+from DomePortfolio.lib.images.specs import ThumbnailSpec, ShopImageSpec
 from DomePortfolio.lib.images.types import BaseImage
 from DomePortfolio.lib.storage.gcp_storage import ImageStorage, FileStorage
 
@@ -28,9 +28,9 @@ class Item(models.Model):
 
 class Image(BaseImage):
     # Representing the "before" image
-    image = ProcessedImageField(spec=ImageSpec, storage=ImageStorage())
+    image = ProcessedImageField(spec=ShopImageSpec, storage=ImageStorage())
     # Representing the "after" image
-    image_after = ProcessedImageField(spec=ImageSpec, storage=ImageStorage())
+    image_after = ProcessedImageField(spec=ShopImageSpec, storage=ImageStorage())
     parent_item = models.ForeignKey(
         to=Item,
         on_delete=models.CASCADE,
