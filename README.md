@@ -21,7 +21,14 @@ follwing variables:
     - PAYPAL_SECRET: str
     - PAYPAL_SANDBOX: bool
 
-5. Run the included docker-compose file,
+5. Add terraform.tfvars in the
+.terraform folder, containing the
+following variables:
+    - db_password: str
+    - db_username: str
+    - 
+
+6. Run the included docker-compose file,
 located under /docker/docker-compose.yml
 by running:  
 ``docker-compose up --build -f docker/docker-compose.yml``  
