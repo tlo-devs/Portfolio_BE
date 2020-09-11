@@ -5,3 +5,7 @@ variable "db_password" {
 variable "db_username" {
   description = "Root user of the database"
 }
+
+variable "db_name" {
+  description = "Name of the database"
+}

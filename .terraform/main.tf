@@ -3,12 +3,8 @@ provider "google" {
   region = "eu-central-3"
 }
 
-resource "random_id" "db_name_suffix" {
-  byte_length = 4
-}
-
 resource "google_sql_database_instance" "dbf1" {
-  name = "main-database-instance-${random_id.db_name_suffix.hex}"
+  name = var.db_name
   settings {
     tier = "db-f1-micro"
   }
