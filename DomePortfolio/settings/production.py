@@ -46,6 +46,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'PORT': 5432,
+        'NAME': TERRAFORM.vars.db_name,
         'USERNAME': TERRAFORM.vars.db_username,
         'PASSWORD': TERRAFORM.vars.db_password,
         'OPTIONS': {
@@ -90,14 +91,18 @@ CORS_ALLOW_METHODS = [
     'POST',
     'OPTIONS',
 ]
-
 CORS_EXPOSE_HEADERS = [
-    "Content-Disposition", "x-filename"
+    "Content-Disposition"
 ]
+CORS_ALLOWED_ORIGINS = [
+    "https://www.11sevendome.de"
+]
+CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
