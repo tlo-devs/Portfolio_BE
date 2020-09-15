@@ -11,6 +11,9 @@ WORKDIR /application/
 COPY ["pyproject.toml", "poetry.lock", "manage.py", "server/uwsgi.ini", "./"]
 RUN poetry install --no-root --no-dev
 
+WORKDIR /application/.terraform
+COPY [".terraform", "./"]
+
 WORKDIR /application/keys/
 COPY ["keys", "./"]
 
