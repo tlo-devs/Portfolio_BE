@@ -23,7 +23,7 @@ from .models import serializers as app_serializers
 
 
 @swagger_auto_schema(
-    method="GET",
+    method="POST",
     operation_summary="Complete Order",
     operation_description="Complete an order on the Backend, "
                           "after the PayPal payment has been completed",
@@ -33,7 +33,7 @@ from .models import serializers as app_serializers
         status.HTTP_400_BAD_REQUEST: app_serializers.ErrorSerializer(),
     }
 )
-@api_view(["GET"])
+@api_view(["POST"])
 def complete_order(request: Request,
                    order_id: str) -> Response:
     # Validate that the order exists and is a valid UUIDv4
