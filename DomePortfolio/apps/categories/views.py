@@ -12,8 +12,7 @@ def recursive_node_to_dict(node):
         'key': node.key,
     }
     children = [recursive_node_to_dict(c) for c in node.get_children()]
-    if children:
-        result['children'] = children
+    result['children'] = children
     return result
 
 
