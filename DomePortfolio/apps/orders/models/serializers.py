@@ -8,6 +8,7 @@ class ErrorSerializer(serializers.Serializer):  # noqa must implement abstract
 
 class CompleteOrderSerializer(serializers.Serializer):  # noqa must implement abstract
     order_id = serializers.CharField()
+    grant = serializers.CharField()
 
 
 class QueryArgsSerializer(serializers.Serializer):  # noqa must implement abstract
