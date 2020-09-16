@@ -56,7 +56,7 @@ def complete_order(request: Request,
         }, 400)
 
     # Update the order with the captured data
-    reference_id = res.result.purchase_units.reference_id
+    reference_id = res.result.purchase_units[0].reference_id
     payer = res.result.payer
     payer_id = payer.payer_id
     payer_email = payer.email_address
