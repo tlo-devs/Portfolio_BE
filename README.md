@@ -26,7 +26,7 @@ follwing variables:
 following variables:
     - db_password: str
     - db_username: str
-    - 
+    - db_name: str
 
 6. Run the included docker-compose file,
 located under /docker/docker-compose.yml
