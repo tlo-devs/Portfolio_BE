@@ -52,3 +52,8 @@ class ShopItemSerializer(serializers.ModelSerializer):
         data["thumbnail"] = instance.thumbnail.name
         data["price"] = PriceSerializer(instance).data
         return data
+
+
+class CreateOrderResponseSerializer(serializers.Serializer):  # noqa must implement abstract
+    system_order_id = serializers.CharField()
+    paypal_order_id = serializers.CharField()
