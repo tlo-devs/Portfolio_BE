@@ -128,7 +128,7 @@ def download_with_order(request: Request,
         return Response(status=404)
 
     download_url = order.product.download.name
-    download_name = "file"
+    download_name = order.product.download.file.name
 
     # Authenticate to Cloud Storage and prepare a streaming request,
     # for the users file download
@@ -143,7 +143,7 @@ def download_with_order(request: Request,
     res = StreamingHttpResponse(streaming_content=req)
 
     # Adjust the headers for the download and send the response
-    res["Content-Disposition"] = f"attachement; filename='{download_name}'"
+    res["Content-Disposition"] = f"attachement; filename={download_name}"
     res["Cache-Control"] = "no-store"
     patch_cache_control(res, max_age=0, public=True)
     return res
