@@ -66,7 +66,6 @@ class PayPalClient:
     def is_payment_completed(self, order_id: str) -> bool:
         """
         Convinience method to allow for easier mocking of the PayPal client
-        Returns true if a given PayPal order qualifies as complete
 
         :param order_id: ID of the PayPal payment
         :return: Returns true if a given PayPal order qualifies as complete,
