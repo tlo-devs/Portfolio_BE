@@ -23,7 +23,8 @@ urlpatterns = [
     path("categories/", include("DomePortfolio.apps.categories.urls", namespace="categories")),
     path("portfolio/", include("DomePortfolio.apps.portfolio.urls", namespace="portfolio")),
     path("shop/", include("DomePortfolio.apps.shop.urls", namespace="shop")),
-    path("orders/<str:order_id>/", include("DomePortfolio.apps.orders.urls", namespace="orders"))
+    path("orders/<str:order_id>/", include("DomePortfolio.apps.orders.urls", namespace="orders")),
+    path("content/", include("DomePortfolio.apps.content.urls", namespace="content")),
 ]
 
 if settings.DEBUG:

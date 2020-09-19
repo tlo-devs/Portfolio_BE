@@ -15,6 +15,7 @@ class SiteAdmin(admin.AdminSite):
     admin_app_ordering = {
         "auth": ("users", "auth"),
         "categories": ("categories",),
+        "content": ("content",),
         "portfolio": ("portfolio",),
         "shop": ("shop", "orders"),
     }
