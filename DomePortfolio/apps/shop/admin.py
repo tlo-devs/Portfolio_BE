@@ -1,3 +1,8 @@
+import contextlib
+
+from django.db import OperationalError
+
+from DomePortfolio.apps.categories.models import CategoryTree
 from adminsortable2.admin import SortableInlineAdminMixin
 from django import forms
 from django.contrib import admin
@@ -6,6 +11,7 @@ from django.forms import ImageField, IntegerField
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.translation import ngettext, gettext_lazy
+from mptt.forms import TreeNodeChoiceField
 
 from .models import Item, Image
 from ...lib.widgets import ImagePreviewWidget
@@ -24,8 +30,13 @@ class ShopItemForm(forms.ModelForm):
     sale = IntegerField(
         min_value=0,
         max_value=100,
-        help_text="Item price reduction (sale) in percent"
+        help_text="Item price reduction (sale) in percent",
     )
+    with contextlib.suppress(OperationalError):
+        category = TreeNodeChoiceField(
+            queryset=CategoryTree.shop.get_parent_leaves("digital"),
+            level_indicator=""
+        )
 
     class Meta:
         model = Item
