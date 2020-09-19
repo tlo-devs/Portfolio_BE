@@ -1,11 +1,26 @@
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from djmoney.models.fields import MoneyField
 from imagekit.models import ProcessedImageField
 
 from DomePortfolio.lib.images.specs import ThumbnailSpec, ShopImageSpec
 from DomePortfolio.lib.images.types import BaseImage
 from DomePortfolio.lib.storage.gcp_storage import ImageStorage, FileStorage
+
+
+class Download(models.Model):
+    file = models.FileField(storage=FileStorage())
+
+
+@receiver(post_delete, sender=Download)
+def delete_remote_file(sender, instance, **kwargs) -> None:
+    uri = instance.image.name
+    if "/" in uri:
+        uri = uri.split("/")[-1]
+    storage = instance.image.storage
+    storage.delete(uri)
 
 
 class Item(models.Model):
@@ -15,8 +30,16 @@ class Item(models.Model):
     sale = models.PositiveSmallIntegerField(
         validators=[MaxValueValidator(100)], default=0
     )
+    category = models.ForeignKey(
+        to="categories.CategoryTree",
+        on_delete=models.SET_NULL,
+        null=True
+    )
     description = models.TextField(null=True)
-    download = models.FileField(storage=FileStorage())
+    download = models.ForeignKey(
+        to=Download,
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = "Product"

@@ -42,6 +42,10 @@ class ShopItemSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    category = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field="key"
+    )
 
     class Meta:
         model = models.Item
@@ -51,6 +55,7 @@ class ShopItemSerializer(serializers.ModelSerializer):
         data = super(ShopItemSerializer, self).to_representation(instance)
         data["thumbnail"] = instance.thumbnail.name
         data["price"] = PriceSerializer(instance).data
+        data["type"] = "digital"
         return data
 
 
