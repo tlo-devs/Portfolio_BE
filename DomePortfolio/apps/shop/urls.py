@@ -5,7 +5,7 @@ from . import views
 app_name = "shop"
 
 router = routers.SimpleRouter()
-router.register(r"", views.ShopViewset)
+router.register(r"digital", views.ShopViewset)
 
 urlpatterns = []
 
