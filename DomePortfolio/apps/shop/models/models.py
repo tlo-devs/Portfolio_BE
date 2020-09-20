@@ -62,4 +62,4 @@ class Image(BaseImage):
     )
 
 
-__all__ = ["Item", "Image"]
+__all__ = ["Item", "Image", "Download"]

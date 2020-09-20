@@ -1,19 +1,18 @@
 import contextlib
 
-from django.db import OperationalError
-
-from DomePortfolio.apps.categories.models import CategoryTree
 from adminsortable2.admin import SortableInlineAdminMixin
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
+from django.db import OperationalError
 from django.forms import ImageField, IntegerField
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.translation import ngettext, gettext_lazy
 from mptt.forms import TreeNodeChoiceField
 
-from .models import Item, Image
+from DomePortfolio.apps.categories.models import CategoryTree
+from .models import Item, Image, Download
 from ...lib.widgets import ImagePreviewWidget
 
 
@@ -32,11 +31,23 @@ class ShopItemForm(forms.ModelForm):
         max_value=100,
         help_text="Item price reduction (sale) in percent",
     )
+    download = forms.FileField()
     with contextlib.suppress(OperationalError):
         category = TreeNodeChoiceField(
             queryset=CategoryTree.shop.get_parent_leaves("digital"),
             level_indicator=""
         )
+
+    def _post_clean(self):
+        if "download" in self.changed_data:
+            dl = Download.objects.create(
+                file=self.cleaned_data.get("download")
+            )
+            dl.save()
+        else:
+            dl = self.instance.download
+        self.cleaned_data["download"] = dl
+        super(ShopItemForm, self)._post_clean()
 
     class Meta:
         model = Item
