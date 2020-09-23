@@ -127,8 +127,8 @@ def download_with_order(request: Request,
     if not order_pk == order_id:
         return Response(status=404)
 
-    download_url = order.product.download.name
-    download_name = order.product.download.file.name
+    download_url = order.product.download.file.name
+    download_name = order.product.download.file.file.name
 
     # Authenticate to Cloud Storage and prepare a streaming request,
     # for the users file download
