@@ -51,10 +51,16 @@ class CategoryTreeAdmin(MPTTModelAdmin):
             return obj.is_leaf_node()
         return False
 
-    def has_change_permission(self, request, obj: Optional[CategoryTree] = None) -> bool:
+    def has_change_permission(self,
+                              request,
+                              obj: Optional[CategoryTree] = None
+                              ) -> bool:
         return self.is_leaf(obj)
 
-    def has_delete_permission(self, request, obj: Optional[CategoryTree] = None) -> bool:
+    def has_delete_permission(self,
+                              request,
+                              obj: Optional[CategoryTree] = None
+                              ) -> bool:
         return self.is_leaf(obj)
 
     def get_form(
