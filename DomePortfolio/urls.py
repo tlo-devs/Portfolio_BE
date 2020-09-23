@@ -10,13 +10,6 @@ favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
 urlpatterns = [
     # Included URL paths
     path('admin/', admin.site.urls),
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$',
-            schema_view.without_ui(cache_timeout=0),
-            name='schema-json'),
-    re_path(r'^redoc/$',
-            schema_view.with_ui('redoc', cache_timeout=0),
-            name='schema-redoc'),
-    re_path(r'^api-auth/', include('rest_framework.urls')),
     re_path(r'^favicon\.ico$', favicon_view),
 
     # User defined URL paths
@@ -28,6 +21,17 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
+    # Add API docs
+    urlpatterns += [
+        re_path(r'^swagger(?P<format>\.json|\.yaml)$',
+                schema_view.without_ui(cache_timeout=0),
+                name='schema-json'),
+        re_path(r'^redoc/$',
+                schema_view.with_ui('redoc', cache_timeout=0),
+                name='schema-redoc')
+    ]
+
+    # Add debug toolbar
     import debug_toolbar
 
     urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]

@@ -84,13 +84,16 @@ AUTH_USER_MODEL = 'users.User'
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 CURRENCIES = ('USD', 'EUR')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    ".11sevendome.de",
+]
 
 # CORS Configuration
 CORS_ALLOW_METHODS = [
     'GET',
     'POST',
     'OPTIONS',
+    'HEAD',
 ]
 CORS_EXPOSE_HEADERS = [
     "Content-Disposition"
@@ -139,8 +142,8 @@ DOWNLOAD_EXPIRY_TIME = 8 * 60 * 60
 
 # Listing of GCP bucket names by purpose (image PUBLIC, files PRIVATE)
 GCP_BUCKETS = {
-    "images": f"{PROJECT_NAME}-image-bucket".lower(),
-    "files": f"{PROJECT_NAME}-file-bucket".lower(),
+    "images": f"{PROJECT_NAME}-image-store".lower(),
+    "files": f"{PROJECT_NAME}-file-store".lower(),
 }
 
 GCP_KEYFILE_PATH = Path(BASE_DIR).parent / "keys"
