@@ -1,6 +1,6 @@
 provider "google" {
-  credentials = file("../keys/CLOUD_STORAGE_OPERATOR.json")
-  region = "eu-central-3"
+  credentials = file("../keys/exodia.json")
+  region = "eu-central-4"
 }
 
 resource "google_sql_database_instance" "dbf1" {
@@ -22,9 +22,9 @@ resource "google_sql_user" "users" {
 }
 
 resource "google_storage_bucket" "images" {
-  name = "image-store"
+  name = "domeportfolio-image-store"
 }
 
 resource "google_storage_bucket" "files" {
-  name = "file-store"
+  name = "domeportfolio-file-store"
 }
