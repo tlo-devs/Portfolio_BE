@@ -20,9 +20,9 @@ def add_default_about(apps, schema_editor):
 
     # AboutParagraphs
     a_paragraphs = (
-        {"title": "Hauptberuf:", "text": "Videoeditor / Fotograf"},
+        {"title": "Hauptberuf", "text": "Videoeditor / Fotograf"},
         {
-            "title": "Zahlreiche Erfahrungen als:",
+            "title": "Zahlreiche Erfahrungen als",
             "text": "Kameramann, Lichtassistent, Cutter"
         }
     )
