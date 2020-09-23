@@ -38,7 +38,8 @@ class OrderFilter(SimpleListFilter):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_filter = [OrderFilter]
-    list_display = ("product", "completed", "pk")
+    list_display = ("product", "completed", "pk", "ordered_on")
+    ordering = ["ordered_on"]
 
     def has_delete_permission(self, request, obj=None):
         return True
