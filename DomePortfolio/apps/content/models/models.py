@@ -1,6 +1,6 @@
 from django.db import models
 from imagekit.models import ProcessedImageField
-from DomePortfolio.lib.storage.gcp_storage import ImageStorage
+from DomePortfolio.lib.storage.gcp_storage import ImageStorage, VideoStorage
 from DomePortfolio.lib.images.specs import ShopImageSpec
 
 
@@ -57,4 +57,26 @@ class VitaParagraph(ParagraphBase):
         return f"Vita Paragraph Nr. {self.order_field} of {str(self.parent)}"
 
 
-__all__ = ["AboutSection", "AboutParagraph", "VitaParagraph"]
+class HomeSection(models.Model):
+    video_desktop = models.FileField(
+        storage=VideoStorage(),
+        null=True,
+        help_text="Video displayed on desktop devices (16:9),"
+                  " should be max. 25MB per minute"
+    )
+    video_mobile = models.FileField(
+        storage=VideoStorage(),
+        null=True,
+        help_text="Video displayed on mobile devices (9:18),"
+                  " should be max. 15MB per minute"
+    )
+
+    class Meta:
+        verbose_name = "Home Section"
+        verbose_name_plural = "Home Section"
+
+    def __str__(self) -> str:
+        return "Home Section"
+
+
+__all__ = ["AboutSection", "AboutParagraph", "VitaParagraph", "HomeSection"]

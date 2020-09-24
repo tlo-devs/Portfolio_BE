@@ -86,6 +86,7 @@ CURRENCIES = ('USD', 'EUR')
 
 ALLOWED_HOSTS = [
     ".11sevendome.de",
+    ".tlo-devs.com"
 ]
 
 # CORS Configuration
@@ -144,6 +145,7 @@ DOWNLOAD_EXPIRY_TIME = 8 * 60 * 60
 GCP_BUCKETS = {
     "images": f"{PROJECT_NAME}-image-store".lower(),
     "files": f"{PROJECT_NAME}-file-store".lower(),
+    "videos": f"{PROJECT_NAME}-video-store".lower(),
 }
 
 GCP_KEYFILE_PATH = Path(BASE_DIR).parent / "keys"

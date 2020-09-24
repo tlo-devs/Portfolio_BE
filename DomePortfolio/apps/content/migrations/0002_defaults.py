@@ -1,5 +1,5 @@
 from django.db import migrations
-from ..models import AboutSection, AboutParagraph, VitaParagraph
+from ..models import AboutSection, AboutParagraph, VitaParagraph, HomeSection
 from typing import Tuple
 
 
@@ -38,11 +38,17 @@ def add_default_about(apps, schema_editor):
     save_paragraph(v_paragraphs, VitaParagraph, about)
 
 
+def add_default_home(*args):
+    home = HomeSection.objects.create()
+    home.save()
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ('content', '0001_initial'),
     ]
 
     operations = [
-        migrations.RunPython(add_default_about)
+        migrations.RunPython(add_default_about),
+        migrations.RunPython(add_default_home),
     ]

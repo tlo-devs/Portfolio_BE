@@ -3,7 +3,7 @@ from django import forms
 from django.contrib import admin
 
 from DomePortfolio.lib.widgets import ImagePreviewWidget
-from .models.models import AboutParagraph, AboutSection, VitaParagraph
+from .models.models import AboutParagraph, AboutSection, VitaParagraph, HomeSection
 
 
 class AboutParagraphChangeForm(forms.ModelForm):
@@ -37,6 +37,18 @@ class AboutSectionAdmin(admin.ModelAdmin):
     inlines = [AboutParagrahsInline, VitaParagraphsInline]
     form = AboutParagraphChangeForm
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+
+@admin.register(HomeSection)
+class HomeSectionAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 

@@ -28,3 +28,14 @@ class AboutSectionSerializer(serializers.Serializer):  # noqa must implement abs
         data = super(AboutSectionSerializer, self).to_representation(instance)
         data["img"] = instance.img.name or None
         return data
+
+
+class HomeSectionSerializer(serializers.Serializer):  # noqa must implement abstract
+    video_desktop = serializers.FileField()
+    video_mobile = serializers.FileField()
+
+    def to_representation(self, instance):
+        data = super(HomeSectionSerializer, self).to_representation(instance)
+        data["video_desktop"] = instance.video_desktop.name or None
+        data["video_mobile"] = instance.video_mobile.name or None
+        return data

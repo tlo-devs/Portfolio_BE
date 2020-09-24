@@ -13,4 +13,8 @@ class FileStorage(GCPStorage):
         return name
 
 
+class VideoStorage(GCPStorage):
+    bucket_name = settings.GCP_BUCKETS.get("videos")
+
+
 __all__ = ["GCPStorage", "ImageStorage", "FileStorage"]

@@ -8,6 +8,7 @@ router = routers.SimpleRouter()
 
 urlpatterns = [
     path("about/", views.about_view),
+    path("home/", views.home_view)
 ]
 
 urlpatterns += router.urls
