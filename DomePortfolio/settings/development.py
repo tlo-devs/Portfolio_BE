@@ -28,6 +28,9 @@ CORS_REPLACE_HTTPS_REFERER = True
 
 INSTALLED_APPS += ["debug_toolbar"]
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+ALLOWED_HOSTS = [
+    "*"
+]
 INTERNAL_IPS = [
     "127.0.0.1"
 ]
