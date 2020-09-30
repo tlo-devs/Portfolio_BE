@@ -28,10 +28,13 @@ if settings.DEBUG:
                 name='schema-json'),
         re_path(r'^redoc/$',
                 schema_view.with_ui('redoc', cache_timeout=0),
-                name='schema-redoc')
+                name='schema-redoc'),
     ]
 
     # Add debug toolbar
     import debug_toolbar
 
     urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
+
+    # Add Prometheus metrics path
+    urlpatterns += [path('', include('django_prometheus.urls'))]
