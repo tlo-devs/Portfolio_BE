@@ -1,10 +1,8 @@
-import contextlib
-
 from adminsortable2.admin import SortableInlineAdminMixin
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
-from django.db import OperationalError
+from django.db import OperationalError, ProgrammingError
 from django.forms import ImageField, IntegerField
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -32,11 +30,13 @@ class ShopItemForm(forms.ModelForm):
         help_text="Item price reduction (sale) in percent",
     )
     download = forms.FileField()
-    with contextlib.suppress(OperationalError):
+    try:
         category = TreeNodeChoiceField(
             queryset=CategoryTree.shop.get_parent_leaves("digital"),
             level_indicator=""
         )
+    except OperationalError or ProgrammingError:
+        pass
 
     def _post_clean(self):
         if "download" in self.changed_data:

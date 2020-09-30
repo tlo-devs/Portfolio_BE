@@ -5,17 +5,21 @@ from django.utils.html import format_html
 from mptt.admin import MPTTModelAdmin
 from mptt.forms import TreeNodeChoiceField
 from django.forms import ModelForm, HiddenInput, CharField
+from django.db.utils import OperationalError, ProgrammingError
 
 from .models import CategoryTree
 
 
 class CategoryTreeAddForm(ModelForm):
-    parent = TreeNodeChoiceField(
-        queryset=CategoryTree.objects.all().filter(
-            children__isnull=False, parent__isnull=False
-        ).distinct(),
-        level_indicator=""
-    )
+    try:
+        parent = TreeNodeChoiceField(
+            queryset=CategoryTree.objects.all().filter(
+                children__isnull=False, parent__isnull=False
+            ).distinct(),
+            level_indicator=""
+        )
+    except OperationalError or ProgrammingError:
+        pass
     key = CharField(widget=HiddenInput(), required=False)
 
     class Meta:

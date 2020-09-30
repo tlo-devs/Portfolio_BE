@@ -4,33 +4,34 @@ from adminsortable2.admin import SortableInlineAdminMixin
 from django.contrib import admin
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 from django.forms import ModelForm, ImageField
 from mptt.forms import TreeNodeChoiceField
 
 from .models import ImageItem, VideoItem, Image
 from ..categories.models import CategoryTree
 from ...lib.widgets import ImagePreviewWidget, VideoPreviewWidget
-import contextlib
 
 
 def form_factory(toplevel_category: str) -> Type[ModelForm]:
     m = ImageItem if toplevel_category == "image" else VideoItem
 
-    with contextlib.suppress(OperationalError):
-        class PortfolioModelForm(ModelForm):
+    class PortfolioModelForm(ModelForm):
+        try:
             category = TreeNodeChoiceField(
                 queryset=CategoryTree.portfolio.get_parent_leaves(toplevel_category),
                 level_indicator=""
             )
-            thumbnail = ImageField(widget=ImagePreviewWidget)
+        except OperationalError or ProgrammingError:
+            pass
+        thumbnail = ImageField(widget=ImagePreviewWidget)
 
-            class Meta:
-                model = m
-                fields = "__all__"
-                widgets = {
-                    'video': VideoPreviewWidget
-                }
+        class Meta:
+            model = m
+            fields = "__all__"
+            widgets = {
+                'video': VideoPreviewWidget
+            }
     return PortfolioModelForm
 
 
