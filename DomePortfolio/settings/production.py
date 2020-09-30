@@ -8,6 +8,7 @@ from DomePortfolio.lib.utils import Tfvars
 
 from DomePortfolio.docs.settings import *  # noqa
 from .keys import *  # noqa
+from .prod_admin import *  # noqa
 
 mimetypes.add_type("text/css", ".css", True)  # fix issue with CSS files in deployment
 
@@ -43,22 +44,21 @@ INSTALLED_APPS = [
     'DomePortfolio.apps.content',
 ]
 
+# This is assuming CloudSQL Proxy works so we can migrate before App Engine deployment
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'PORT': 5432,
-        'NAME': TERRAFORM.vars.db_name,
-        'USERNAME': TERRAFORM.vars.db_username,
+        'HOST': "localhost",
+        'PORT': "5432",
+        'NAME': "domeportfolio-main-database",
+        'USER': TERRAFORM.vars.db_username,
         'PASSWORD': TERRAFORM.vars.db_password,
-        'OPTIONS': {
-            'encoding': 'UTF-8'
-        },
     }
 }
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.AllowAny'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -73,7 +73,13 @@ SIMPLE_JWT = {
 }
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/var/django/projects/DomePortfolio/static/'  # noqa
+
+# Check if we are in Docker container
+if os.getenv("UWSGI_INI", None):
+    STATIC_ROOT = '/var/django/projects/DomePortfolio/static/'  # noqa
+else:
+    STATIC_ROOT = 'static'  # noqa
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "media"),
 ]
@@ -86,7 +92,8 @@ CURRENCIES = ('USD', 'EUR')
 
 ALLOWED_HOSTS = [
     ".11sevendome.de",
-    ".tlo-devs.com"
+    ".tlo-devs.com",
+    ".appspot.com",
 ]
 
 # CORS Configuration
@@ -149,6 +156,8 @@ GCP_BUCKETS = {
 }
 
 GCP_KEYFILE_PATH = Path(BASE_DIR).parent / "keys"
+GCP_STORAGE_KEY = GCP_KEYFILE_PATH / "storage_ops.json"
+GCP_LOGGING_KEY = GCP_KEYFILE_PATH / "logging_ops.json"
 
 WSGI_APPLICATION = 'DomePortfolio.wsgi.application'
 
@@ -172,3 +181,34 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+if os.getenv("GAE_APPLICATION", None):
+    db_socket_dir = os.environ.get("DB_SOCKET_DIR", "cloudsql")
+
+    # When using GAE use a unix socket for connection to the db instead
+    DATABASES["default"]["HOST"] = f"/{db_socket_dir}/{CLOUD_SQL_CONN_NAME}"
+
+    # Setup Google Cloud Logging
+    from google.cloud import logging  # noqa
+    client = logging.Client().from_service_account_json(
+        GCP_LOGGING_KEY
+    )
+    # Connects the logger to the root logging handler; by default
+    # this captures all logs at INFO level and higher
+    client.setup_logging()
+    LOGGING = {
+        'version': 1,
+        'handlers': {
+            'stackdriver': {
+                'class': 'google.cloud.logging.handlers.CloudLoggingHandler',
+                'client': client
+            }
+        },
+        'loggers': {
+            '': {
+                'handlers': ['stackdriver'],
+                'level': 'INFO',
+                'name': os.getenv("GAE_DEPLOYMENT_ID", "default")
+            }
+        },
+    }
