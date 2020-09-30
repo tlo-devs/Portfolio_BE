@@ -8,7 +8,7 @@ from google.cloud.storage import Bucket
 class GCPStorageAdapter:
     __mixin_state: ClassVar["GCPStorageAdapter"] = None
     gcloud_client: ClassVar = storage.Client.from_service_account_json(
-         settings.GCP_KEYFILE_PATH / "CLOUD_STORAGE_OPERATOR.json"
+         settings.GCP_STORAGE_KEY
     )
 
     buckets: ClassVar[Dict[str, Bucket]] = {}
