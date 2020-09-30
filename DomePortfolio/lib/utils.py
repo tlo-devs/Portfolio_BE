@@ -28,7 +28,7 @@ class _TfvarsParser:
             c = fin.readlines()
         extract = lambda i: [el.strip() for el in [line.split("=")[i] for line in c]]
         keys = extract(0)
-        vals = [line[1:-1].encode() for line in extract(1)]
+        vals = [line[1:-1] for line in extract(1)]
         kvpairs = {k: v for k, v in zip(keys, vals)}
         return kvpairs
 
