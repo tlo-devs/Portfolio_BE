@@ -2,8 +2,11 @@ version: "3"
 
 services:
   server:
+    volumes:
+    - "/application/DjangoCorsTests/db"
     ports:
-      - 8001:8080
+      - 8080:8080
+      - 1717:1717
     build:
       context: ..
-      dockerfile: docker/uwsgi.dockerfile
+      dockerfile: Dockerfile

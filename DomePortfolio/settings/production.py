@@ -75,7 +75,7 @@ SIMPLE_JWT = {
 STATIC_URL = '/static/'
 
 # Check if we are in Docker container
-if os.getenv("UWSGI_INI", None):
+if os.getenv("NGINX_HOST", None):
     STATIC_ROOT = '/var/django/projects/DomePortfolio/static/'  # noqa
 else:
     STATIC_ROOT = 'static'  # noqa
