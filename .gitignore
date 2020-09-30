@@ -4,6 +4,7 @@ venv
 *.env
 .run
 DomePortfolio/settings/keys.py
+DomePortfolio/settings/prod_admin.py
 
 # Exclude compiled files and caches
 __pycache__
@@ -18,6 +19,10 @@ dist
 *.egg-info
 *.css.map
 .terraform/.terraform
+.terraform/terraform.plan
+*.tfstate
+*.tfstate.lock.info
+*.tfstate.backup
 
 # Exclude authentication information
 keys
